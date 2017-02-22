@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -82,7 +82,15 @@ namespace IPAddressFiltering
 
         protected override bool IsAuthorized(HttpActionContext context)
         {
-            string ipAddressString = ((HttpContextWrapper)context.Request.Properties["MS_HttpContext"]).Request.UserHostName;
+            string ipAddressString = "";
+            if (context.Request.Properties.ContainsKey("MS_HttpContext"))
+            {
+                ipAddressString = IPAddress.Parse(((HttpContextBase)context.Request.Properties["MS_HttpContext"]).Request.UserHostAddress).ToString();
+            }
+            if (context.Request.Properties.ContainsKey("MS_OwinContext"))
+            {
+                ipAddressString = IPAddress.Parse(((Microsoft.Owin.OwinContext)context.Request.Properties["MS_OwinContext"]).Request.RemoteIpAddress).ToString();
+            }
             return IsIPAddressAllowed(ipAddressString);
         }
 
